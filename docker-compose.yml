@@ -1,0 +1,64 @@
+version: "3.9"
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: delivery_mysql
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DB}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    ports:
+      - "3307:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  redis:
+    image: redis:7.2
+    container_name: delivery_redis
+    ports: ["6379:6379"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build: .
+    container_name: delivery_api
+    env_file: .env
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    command: ["/start.sh"]
+
+  celery-worker:
+    build: .
+    container_name: delivery_celery_worker
+    env_file: .env
+    depends_on:
+      - api
+      - redis
+      - mysql
+    command: ["celery", "-A", "app.tasks.celery_app:celery_app", "worker", "--loglevel=INFO"]
+
+  celery-beat:
+    build: .
+    container_name: delivery_celery_beat
+    env_file: .env
+    depends_on:
+      - redis
+    command: ["celery", "-A", "app.tasks.celery_app:celery_app", "beat", "--loglevel=INFO"]
+
+volumes:
+  mysql_data:
