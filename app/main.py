@@ -1,11 +1,13 @@
 from fastapi import FastAPI
+from starlette.middleware.sessions import SessionMiddleware
+from app.core.config import settings
+from app.api import parcels, parcel_types, tasks
 
-app = FastAPI(title="Delivery Service API", version="1.0.0")
+app = FastAPI(title="Delivery Service", version="0.1.0")
 
-@app.get("/")
-async def root():
-    return {"message": "Delivery Service API is running!"}
+app.add_middleware(SessionMiddleware, secret_key=settings.SESSION_SECRET, same_site="lax")
 
-@app.get("/health")
-async def health_check():
-    return {"status": "healthy"}
+# Подключаем маршруты
+app.include_router(parcel_types.router)
+app.include_router(parcels.router)
+app.include_router(tasks.router)
