@@ -10,4 +10,7 @@ celery[redis]==5.4.0
 python-json-logger==2.0.7
 structlog==24.4.0
 orjson==3.10.7
-dotenv
+itsdangerous==2.1.2
+python-dotenv==1.0.0
+cryptography==42.0.5
+pymysql==1.1.0
