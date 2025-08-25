@@ -7,8 +7,9 @@ until nc -z ${MYSQL_HOST:-mysql} ${MYSQL_PORT:-3306}; do
 done
 echo "MySQL is up."
 
-# Временно отключаем миграции
-# alembic upgrade head
+# Миграции (работаем из корня проекта)
+cd /app
+alembic upgrade head
 
 # Запуск API
 exec uvicorn app.main:app --host ${APP_HOST:-0.0.0.0} --port ${APP_PORT:-8000}

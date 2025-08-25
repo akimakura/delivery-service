@@ -7,6 +7,9 @@ from app.core.config import settings
 redis = Redis.from_url(settings.REDIS_URL, decode_responses=True)
 
 async def get_usd_rub_rate() -> float:
+    """
+    Получаем курс доллара к рублю из Redis или из CBR.
+    """
     key = "exrate:usd_rub"
     cached = redis.get(key)
     if cached:

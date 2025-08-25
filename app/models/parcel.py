@@ -1,6 +1,7 @@
 from sqlalchemy import String, Integer, ForeignKey, Numeric, DateTime, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db.database import Base
+from datetime import datetime
 
 from app.models.parcel_type import ParcelType
 
@@ -15,6 +16,6 @@ class Parcel(Base):
     content_value_usd: Mapped[float] = mapped_column(Numeric(12,2), nullable=False)
     type_id: Mapped[int] = mapped_column(ForeignKey("parcel_types.id"), nullable=False)
     delivery_cost_rub: Mapped[float | None] = mapped_column(Numeric(12,2))
-    created_at: Mapped = mapped_column(DateTime, server_default=func.now())
+    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
 
     type: Mapped["ParcelType"] = relationship()
