@@ -11,5 +11,9 @@ echo "MySQL is up."
 cd /app
 alembic upgrade head
 
+# Инициализация базовых данных
+echo "Initializing base data..."
+python -m app.db.init_data
+
 # Запуск API
 exec uvicorn app.main:app --host ${APP_HOST:-0.0.0.0} --port ${APP_PORT:-8000}

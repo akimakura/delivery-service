@@ -4,7 +4,7 @@ from sqlalchemy import update, select
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 from app.core.config import settings
-from app.models import Base, Parcel
+from app.models.parcel import Parcel
 import asyncio
 from app.services.rates import get_usd_rub_rate
 
@@ -17,8 +17,8 @@ def _calc(weight_kg: Decimal, content_usd: Decimal, rate: Decimal) -> Decimal:
     cost = (weight_kg * Decimal("0.5") + content_usd * Decimal("0.01")) * rate
     return cost.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
-@shared_task(name="app.tasks.jobs.compute_costs")
-def compute_costs():
+@shared_task(bind=True, name="app.tasks.jobs.compute_costs")
+def compute_costs(self):
     # тянем курс (через httpx/redis) — вызываем в asyncio-лупе
     rate = Decimal(str(asyncio.run(get_usd_rub_rate())))
     with SessionLocal() as db:

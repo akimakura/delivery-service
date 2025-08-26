@@ -16,6 +16,7 @@ services:
       retries: 10
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./docker/init-mysql.sql:/docker-entrypoint-initdb.d/init-mysql.sql
 
   redis:
     image: redis:7.2
