@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, Request, Query
 from app.db.database import get_session, AsyncSession
+from typing import Optional
 from app.api.crud import ParcelCRUD, ParcelTypeCRUD
 from app.schemas import Envelope, ParcelIn, ParcelOut, Page
 from app.core.sessions import get_or_create_session_id
@@ -47,8 +48,8 @@ async def register_parcel(
 async def list_parcels(
     request: Request,
     db: AsyncSession = Depends(get_session),
-    type_id: int | None = Query(None),
-    has_cost: bool | None = Query(None),
+    type_id: Optional[int] = Query(None),
+    has_cost: Optional[bool] = Query(None),
     limit: int = Query(20, ge=1, le=100),
     offset: int = Query(0, ge=0),
 ):

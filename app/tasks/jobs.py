@@ -3,14 +3,25 @@ from celery import shared_task
 from sqlalchemy import update, select
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
-from app.core.config import settings
+import os
+if bool(os.getenv("PYTEST_CURRENT_TEST")) or os.getenv("TESTING") == "true":
+    from app.core.config_test import settings
+else:
+    from app.core.config import settings
 from app.models.parcel import Parcel
 import asyncio
 from app.services.rates import get_usd_rub_rate
 
 
 # sync engine для celery, проще жизненный цикл
-engine = create_engine(settings.DATABASE_URL.replace("+aiomysql", "+pymysql"))
+_db_url = settings.DATABASE_URL
+if _db_url.startswith("sqlite+aiosqlite"):
+    # Для тестов переключаемся на синхронный sqlite драйвер
+    _db_url = _db_url.replace("sqlite+aiosqlite", "sqlite")
+else:
+    _db_url = _db_url.replace("+aiomysql", "+pymysql")
+
+engine = create_engine(_db_url)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 
 def _calc(weight_kg: Decimal, content_usd: Decimal, rate: Decimal) -> Decimal:

@@ -1,7 +1,11 @@
 import json, math
 import httpx
 from redis import Redis
-from app.core.config import settings
+import os
+if bool(os.getenv("PYTEST_CURRENT_TEST")) or os.getenv("TESTING") == "true":
+    from app.core.config_test import settings
+else:
+    from app.core.config import settings
 
 
 redis = Redis.from_url(settings.REDIS_URL, decode_responses=True)

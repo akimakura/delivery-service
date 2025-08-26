@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, condecimal
-from typing import Optional
+from typing import Optional, Union, List, Dict
 
 
 class ParcelIn(BaseModel):
@@ -14,7 +14,7 @@ class ParcelOut(BaseModel):
     weight_kg: float
     type_name: str
     content_value_usd: float
-    delivery_cost_rub: Optional[float | str]  # "Не рассчитано"
+    delivery_cost_rub: Optional[Union[float, str]]  # "Не рассчитано"
 
 class ParcelTypeOut(BaseModel):
     id: int
@@ -22,9 +22,9 @@ class ParcelTypeOut(BaseModel):
 
 class Page(BaseModel):
     total: int
-    items: list[ParcelOut]
+    items: List[ParcelOut]
 
 class Envelope(BaseModel):
     success: bool
-    data: dict | list | None = None
-    error: dict | None = None
+    data: Optional[Union[Dict, List]] = None
+    error: Optional[Dict] = None
